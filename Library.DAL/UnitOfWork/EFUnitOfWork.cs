@@ -1,10 +1,6 @@
-﻿using Library.DAL.Entities;
-using Library.DAL.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Library.DAL.Entities;
+using Library.DAL.Repositories;
 
 namespace Library.DAL.UnitOfWork
 {
@@ -14,14 +10,14 @@ namespace Library.DAL.UnitOfWork
         private BookRepository _bookRepository;
         private CountryRepository _countryRepository;
         private PersonRepository _personRepository;
-        private PublishingHouseReposiroty _publishingHouseRepository;
+        private PublishingHouseRepository _publishingHouseRepository;
 
         public EFUnitOfWork(ApplicationContext applicationContext)
         {
             _applicationContext = applicationContext;
         }
 
-        public IRepository<Book> BookRepository
+        public IRepository<Book> Books
         {
             get
             {
@@ -34,7 +30,7 @@ namespace Library.DAL.UnitOfWork
             }
         }
 
-        public IRepository<Country> CountryRepository
+        public IRepository<Country> Countries
         {
             get
             {
@@ -47,7 +43,7 @@ namespace Library.DAL.UnitOfWork
             }
         }
 
-        public IRepository<Person> PersonRepository
+        public IRepository<Person> Persons
         {
             get
             {
@@ -60,7 +56,7 @@ namespace Library.DAL.UnitOfWork
             }
         }
 
-        public IRepository<PublishingHouse> PublishingHouseRepository
+        public IRepository<PublishingHouse> PublishingHouses
         {
             get
             {
@@ -73,12 +69,12 @@ namespace Library.DAL.UnitOfWork
             }
         }
 
-        public async void SaveAsync()
+        public async Task SaveAsync()
         {
             await _applicationContext.SaveChangesAsync();
         }
 
-        public void RollBack()
+        public void Dispose()
         {
             _applicationContext.Dispose();
         }

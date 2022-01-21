@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Library.DAL.Repository
+namespace Library.DAL.Repositories
 {
     public interface IRepository<T> where T : class
     {
@@ -12,10 +9,10 @@ namespace Library.DAL.Repository
 
         Task<T> GetById(int id);
 
-        void Create(T item);
+        Task Create(T item);
 
         void Update(T item);
 
-        void DeleteById(int id);
+        Task DeleteById(int id);
     }
 }

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Library.DAL.Entities
 {
     public class Book : BaseEntity
     {
+        [Required]
+        [MaxLength(1000)]
         public string Title { get; set; }
 
         public ICollection<Person> Authors { get; set; }

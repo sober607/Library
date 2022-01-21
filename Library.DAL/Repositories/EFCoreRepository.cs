@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Library.DAL.Entities;
 
-namespace Library.DAL.Repository
+namespace Library.DAL.Repositories
 {
     public abstract class EfCoreRepository<TEntity, TContext> : IRepository<TEntity>
         where TEntity : BaseEntity
@@ -29,7 +29,7 @@ namespace Library.DAL.Repository
             return await _entities.FirstOrDefaultAsync(entity => entity.Id == id);
         }
 
-        public async void Create(TEntity entity)
+        public async Task Create(TEntity entity)
         {
             if (entity == null)
             {
@@ -49,7 +49,7 @@ namespace Library.DAL.Repository
             _entities.Update(entity);
         }
 
-        public async void DeleteById(int id)
+        public async Task DeleteById(int id)
         {
             var entity = await _entities.FirstOrDefaultAsync(entity => entity.Id == id);
 

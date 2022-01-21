@@ -1,3 +1,5 @@
+using AutoMapper;
+using Library.Business.Mapping;
 using Library.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,8 +31,10 @@ namespace Library
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("LibraryDefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
+
+            services.AddAutoMapper(typeof(ModelMappingProfile));
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Library.DAL.Entities
+namespace Library.Business.DTO.Person
 {
-    public class Person : BaseEntity
+    public  class PersonDto
     {
-        [Required]
-        [MaxLength(50)]
+        public long Id { get; set; }
+
         public string FirstName { get; set; }
 #nullable enable
         public string? LastName { get; set; }
@@ -16,8 +18,5 @@ namespace Library.DAL.Entities
 
         public long? CountryId { get; set; }
 #nullable disable
-        public Country CountryOfBirth { get; set; }
-
-        public ICollection<Book> Books { get; set; }
     }
 }

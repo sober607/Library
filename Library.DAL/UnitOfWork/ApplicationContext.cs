@@ -20,5 +20,14 @@ namespace Library.DAL.UnitOfWork
         {
             Database.EnsureCreated();
         }
+
+        //Many-To-Many table relationship
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Book>()
+                    .HasMany(a => a.Authors)
+                    .WithMany(b => b.Books)
+                    .UsingEntity(j => j.ToTable("BookAuthor"));
+        }
     }
 }
