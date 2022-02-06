@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Library.DAL.Entities;
 using Library.DAL.Repositories;
+using Library.DAL.Repositories.Interfaces;
 
 namespace Library.DAL.UnitOfWork
 {
@@ -9,11 +10,13 @@ namespace Library.DAL.UnitOfWork
     {
         IRepository<Book> Books { get; }
 
-        IRepository<Country> Countries { get; }
+        ICountryRepository Countries { get; }
 
         IRepository<Person> Persons { get; }
 
         IRepository<PublishingHouse> PublishingHouses { get; }
+
+        IRepository<BookAuthor> BookAuthors { get; }
 
         Task SaveAsync();
     }

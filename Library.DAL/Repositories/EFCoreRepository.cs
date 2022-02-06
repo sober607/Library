@@ -10,7 +10,7 @@ namespace Library.DAL.Repositories
         where TEntity : BaseEntity
         where TContext : DbContext
     {
-        private readonly TContext _context;
+        protected readonly TContext _context;
         private readonly DbSet<TEntity> _entities;
 
         public EfCoreRepository(TContext context)
@@ -19,7 +19,9 @@ namespace Library.DAL.Repositories
             _entities = _context.Set<TEntity>();
         }
 
-        public async Task<IEnumerable<TEntity>> GetAll()
+        // To check necersaryti AsQueryable
+
+        public async Task<IEnumerable<TEntity>> GetAll() // To check necessaryty
         {
             return await _entities.ToListAsync();
         }

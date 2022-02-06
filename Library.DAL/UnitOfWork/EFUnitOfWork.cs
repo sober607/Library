@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Library.DAL.Entities;
 using Library.DAL.Repositories;
+using Library.DAL.Repositories.Interfaces;
 
 namespace Library.DAL.UnitOfWork
 {
@@ -11,6 +12,7 @@ namespace Library.DAL.UnitOfWork
         private CountryRepository _countryRepository;
         private PersonRepository _personRepository;
         private PublishingHouseRepository _publishingHouseRepository;
+        private BookAuthorRepository _bookAuthorRepository;
 
         public EFUnitOfWork(ApplicationContext applicationContext)
         {
@@ -30,7 +32,7 @@ namespace Library.DAL.UnitOfWork
             }
         }
 
-        public IRepository<Country> Countries
+        public ICountryRepository Countries
         {
             get
             {
@@ -66,6 +68,19 @@ namespace Library.DAL.UnitOfWork
                 }
 
                 return _publishingHouseRepository;
+            }
+        }
+
+        public IRepository<BookAuthor> BookAuthors
+        {
+            get
+            {
+                if (_bookAuthorRepository == null)
+                {
+                    _bookAuthorRepository = new BookAuthorRepository(_applicationContext);
+                }
+
+                return _bookAuthorRepository;
             }
         }
 

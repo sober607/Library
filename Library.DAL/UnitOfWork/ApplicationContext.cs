@@ -14,6 +14,7 @@ namespace Library.DAL.UnitOfWork
         public DbSet<Country> Countries { get; set; }
         public DbSet<Person> Person { get; set; }
         public DbSet<PublishingHouse> PublishingHouse { get; set; }
+        public DbSet<BookAuthor> BookAuthor { get; set; }
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
             : base(options)
@@ -24,10 +25,21 @@ namespace Library.DAL.UnitOfWork
         //Many-To-Many table relationship
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Book>()
-                    .HasMany(a => a.Authors)
-                    .WithMany(b => b.Books)
-                    .UsingEntity(j => j.ToTable("BookAuthor"));
+            modelBuilder.Entity<BookAuthor>()
+                    .HasOne(d => d.Book)
+                    .WithMany(t => t.BookAuthors)
+                    .HasForeignKey(f => f.BookId)
+                    .HasConstraintName("FK_BooksOfAuthor");
+
+            modelBuilder.Entity<BookAuthor>()
+                    .HasOne(d => d.Author)
+                    .WithMany(t => t.AuthorBooks)
+                    .HasForeignKey(f => f.AuthorId)
+                    .HasConstraintName("FK_AuthorsOfBook");
+
+            modelBuilder.Entity<BookAuthor>()
+                    .HasIndex(f => new { f.AuthorId, f.BookId })
+                    .IsUnique();
         }
     }
 }

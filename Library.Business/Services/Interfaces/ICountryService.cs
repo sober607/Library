@@ -1,4 +1,5 @@
 ﻿using Library.Business.DTO.Country;
+using Library.Business.Model.ResultModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +10,16 @@ namespace Library.Business.Services.Interfaces
 {
     public interface ICountryService
     {
-        Task<Result<IList<CountryDto>>> CheckSimilarCountriesByNameAsync(string countryName);
+        Task<ResultModel<IList<CountryDto>>> CheckSimilarCountriesByNameAsync(string countryName);
 
-        Task<Result<CountryDto>> GetCountryByNameAsync(string countryName);
+        Task<ResultModel<CountryDto>> GetCountryByNameAsync(string countryName);
 
-        Task<Result<CountryDto>> GetCountryByIdAsync(long countryId);
+        Task<ResultModel<CountryDto>> GetCountryByIdAsync(long countryId);
 
-        Task<Result<CountryDto>> CreateCountryAsync(CreateCountryDto countryDto);
+        Task<ResultModel<CountryDto>> CreateCountryAsync(CreateCountryDto countryDto);
 
-        Task<Result<bool>> DeleteCountryByIdAsync(long countryId);
+        Task<ResultModel<bool>> DeleteCountryByIdAsync(long countryId);
 
-        Task<Result<CountryDto>> UpdateCountryAsync(long countryId, UpdateCountryDto countryDto);
+        Task<ResultModel<CountryDto>> UpdateCountryAsync(long countryId, UpdateCountryDto countryDto);
     }
 }

@@ -15,5 +15,7 @@ namespace Library.Business.DTO.Person
         public DateTime? DateOfBirth { get; set; }
 
         public long? CountryOfBirthId { get; set; }
+
+        public IList<long> BooksIds { get; set; }
     }
 }

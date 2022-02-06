@@ -10,8 +10,6 @@ namespace Library.DAL.Entities
         [MaxLength(1000)]
         public string Title { get; set; }
 
-        public ICollection<Person> Authors { get; set; }
-
         public long? PublishingHouseId { get; set; }
 
         public PublishingHouse PublishingHouse { get; set; }
@@ -19,5 +17,7 @@ namespace Library.DAL.Entities
         public DateTime? PublishingDate { get; set; }
 
         public int? Circulations { get; set; }
+
+        public ICollection<BookAuthor> BookAuthors { get; set; }
     }
 }

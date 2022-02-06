@@ -17,5 +17,7 @@ namespace Library.Business.DTO.Book
         public DateTime? PublishingDate { get; set; }
 
         public int? Circulations { get; set; }
+
+        public IList<long> AuthorIds { get; set; }
     }
 }

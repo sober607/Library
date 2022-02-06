@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Library.Business.DTO.Person
 {
-    public  class PersonDto
+    public class PersonDto
     {
         public long Id { get; set; }
 
@@ -18,5 +18,6 @@ namespace Library.Business.DTO.Person
 
         public long? CountryId { get; set; }
 #nullable disable
+        public IList<long> BooksIds { get; set; }
     }
 }

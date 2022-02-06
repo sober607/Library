@@ -18,6 +18,6 @@ namespace Library.DAL.Entities
 #nullable disable
         public Country CountryOfBirth { get; set; }
 
-        public ICollection<Book> Books { get; set; }
+        public IList<BookAuthor> AuthorBooks { get; set; }
     }
 }
