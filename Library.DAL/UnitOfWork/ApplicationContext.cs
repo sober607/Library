@@ -40,6 +40,46 @@ namespace Library.DAL.UnitOfWork
             modelBuilder.Entity<BookAuthor>()
                     .HasIndex(f => new { f.AuthorId, f.BookId })
                     .IsUnique();
+
+            modelBuilder.Entity<BookAuthor>()
+                .Property(x => x.BookId)
+                .IsRequired();
+
+            modelBuilder.Entity<BookAuthor>()
+                .Property(x => x.AuthorId)
+                .IsRequired();
+
+            modelBuilder.Entity<Book>()
+                .Property(x => x.Title)
+                .IsRequired();
+
+            modelBuilder.Entity<Book>()
+                .Property(x => x.Title)
+                .HasMaxLength(1000);
+
+            modelBuilder.Entity<Country>()
+                .Property(x => x.Name)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<Country>()
+                .Property(x => x.Name)
+                .IsRequired();
+
+            modelBuilder.Entity<Person>()
+                .Property(x => x.FirstName)
+                .IsRequired();
+
+            modelBuilder.Entity<Person>()
+                .Property(x => x.FirstName)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<PublishingHouse>()
+                .Property(x => x.Name)
+                .HasMaxLength(500);
+
+            modelBuilder.Entity<PublishingHouse>()
+                .Property(x => x.Name)
+                .IsRequired();
         }
     }
 }

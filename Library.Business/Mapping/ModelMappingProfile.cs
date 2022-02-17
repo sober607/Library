@@ -15,17 +15,13 @@ namespace Library.Business.Mapping
             // To review and edit
             CreateMap<Book, BookDto>().ForMember(destination => destination.AuthorIds, conf => conf.MapFrom(x => x.BookAuthors.Select(y => y.AuthorId).ToList())); // Проверитьб нужен ли ToLLIst
             CreateMap<BookDto, Book>();
-
             CreateMap<CreateBookDto, Book>();
 
-            CreateMap<Country, CountryDto>();
-            CreateMap<CountryDto, Country>();
+            CreateMap<Country, CountryDto>().ReverseMap();
 
-            CreateMap<Person, PersonDto>();
-            CreateMap<PersonDto, Person>();
+            CreateMap<Person, PersonDto>().ReverseMap();
 
-            CreateMap<PublishingHouse, PublishingHouseDto>();
-            CreateMap<PublishingHouseDto, PublishingHouseDto>();
+            CreateMap<PublishingHouse, PublishingHouseDto>().ReverseMap();
         }
     }
 }

@@ -1,9 +1,6 @@
 ﻿using Library.Business.DTO.Country;
 using Library.Business.Model.ResultModel;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Library.Business.Services.Interfaces
@@ -16,10 +13,10 @@ namespace Library.Business.Services.Interfaces
 
         Task<ResultModel<CountryDto>> GetCountryByIdAsync(long countryId);
 
-        Task<ResultModel<CountryDto>> CreateCountryAsync(CreateCountryDto countryDto);
+        Task<ResultModel<CountryDto>> CreateCountryAsync(CountryDto countryDto);
 
-        Task<ResultModel<bool>> DeleteCountryByIdAsync(long countryId);
+        ResultModel<bool> DeleteCountryByIdAsync(long countryId);
 
-        Task<ResultModel<CountryDto>> UpdateCountryAsync(long countryId, UpdateCountryDto countryDto);
+        Task<ResultModel<CountryDto>> UpdateCountry(CountryDto countryDto);
     }
 }

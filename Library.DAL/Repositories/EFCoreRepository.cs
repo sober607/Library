@@ -26,12 +26,17 @@ namespace Library.DAL.Repositories
             return await _entities.ToListAsync();
         }
 
-        public async Task<TEntity> GetById(int id)
+        public async Task<TEntity> GetByIdAsync(long id)
         {
             return await _entities.FirstOrDefaultAsync(entity => entity.Id == id);
         }
 
-        public async Task Create(TEntity entity)
+        public async Task<bool> DoesExistByIdAsync(long id) // For faster checks, then FirstOrDefault.
+        {
+            return await _entities.AnyAsync(entity => entity.Id == id);
+        }
+
+        public async Task CreateAsync(TEntity entity)
         {
             if (entity == null)
             {
@@ -51,7 +56,7 @@ namespace Library.DAL.Repositories
             _entities.Update(entity);
         }
 
-        public async Task DeleteById(int id)
+        public async Task DeleteById(long id)
         {
             var entity = await _entities.FirstOrDefaultAsync(entity => entity.Id == id);
 
@@ -59,6 +64,12 @@ namespace Library.DAL.Repositories
             {
                 _entities.Remove(entity);
             }
+        }
+
+        public void UpdateManyToMany(IEnumerable<TEntity> currentItems, IEnumerable<TEntity> newItems)
+        {
+            _entities.RemoveRange(currentItems);
+            _entities.AddRange(newItems);
         }
     }
 }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Library.Business.Model.ResultModel
 {
@@ -18,15 +14,13 @@ namespace Library.Business.Model.ResultModel
             {
                 throw new ArgumentNullException();
             }
-            else
-            {
-                var dataToReturn = new ResultModel<T>()
-                {
-                    Data = transferredData
-                };
 
-                return dataToReturn;
-            }
+            var dataToReturn = new ResultModel<T>()
+            {
+                Data = transferredData
+            };
+
+            return dataToReturn;
         }
 
         public static ResultModel<T> GetError(ErrorCode errorCode, string errorMessage)

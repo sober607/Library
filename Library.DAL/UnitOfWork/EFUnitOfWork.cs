@@ -92,8 +92,7 @@ namespace Library.DAL.UnitOfWork
         public void Dispose()
         {
             _applicationContext.Dispose();
+            /*_applicationContext.Database.*/ // проверить нужно COMMIT и ROLLBACK, BEGIN TRANSACTION
         }
-
-        //To add BeginTransactionMethod, _applicationContext.ROllback()
     }
 }

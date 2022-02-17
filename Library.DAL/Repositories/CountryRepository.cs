@@ -4,6 +4,7 @@ using Library.DAL.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Library.DAL.Repositories
 {
@@ -13,9 +14,14 @@ namespace Library.DAL.Repositories
         {
         }
 
-        public IQueryable<Country> GetCountriesByNameFragement(string countryNameFragment)
+        public async Task<IEnumerable<Country>> GetCountriesByNameFragement(string countryNameFragment)
         {
-             return _context.Countries.Where(x => x.Name.Contains(countryNameFragment)).AsQueryable();
+             return await _context.Countries.Where(x => x.Name.Contains(countryNameFragment)).ToListAsync();
+        }
+
+        public async Task<Country> GetCountryByNameAsync(string countryName)
+        {
+            return await _context.Countries.FirstOrDefaultAsync(x => x.Name.Contains(countryName));
         }
     }
 }

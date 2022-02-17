@@ -6,8 +6,6 @@ namespace Library.DAL.Entities
 {
     public class Person : BaseEntity
     {
-        [Required]
-        [MaxLength(50)]
         public string FirstName { get; set; }
 #nullable enable
         public string? LastName { get; set; }

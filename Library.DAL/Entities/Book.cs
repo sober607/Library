@@ -6,8 +6,6 @@ namespace Library.DAL.Entities
 {
     public class Book : BaseEntity
     {
-        [Required]
-        [MaxLength(1000)]
         public string Title { get; set; }
 
         public long? PublishingHouseId { get; set; }

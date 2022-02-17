@@ -7,12 +7,16 @@ namespace Library.DAL.Repositories
     {
         Task<IEnumerable<T>> GetAll();
 
-        Task<T> GetById(int id);
+        Task<T> GetByIdAsync(long id);
 
-        Task Create(T item);
+        Task<bool> DoesExistByIdAsync(long id);
+
+        Task CreateAsync(T item);
 
         void Update(T item);
 
-        Task DeleteById(int id);
+        Task DeleteById(long id);
+
+        void UpdateManyToMany(IEnumerable<T> currentItems, IEnumerable<T> newItems);
     }
 }
