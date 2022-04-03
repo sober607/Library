@@ -5,6 +5,6 @@ namespace Library.DAL.Entities
     public class BaseEntity
     {
         [Required]
-        public int Id { get; set; }
+        public long Id { get; set; }
     }
 }

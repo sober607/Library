@@ -26,15 +26,13 @@ namespace Library.Business.Services
 
             if (String.IsNullOrWhiteSpace(countryName))
             {
-                countriesResultToReturn = ResultModel<IList<CountryDto>>.GetError(ErrorCode.ValidationError, "Empty contry name");
+                return ResultModel<IList<CountryDto>>.GetError(ErrorCode.ValidationError, "Empty contry name");
             }
-            else
-            {
-                var countries = await _unitOfWork.Countries.GetCountriesByNameFragement(countryName);
-                var countriesDto = _mapper.Map<IList<CountryDto>>(countries);
 
-                countriesResultToReturn = ResultModel<IList<CountryDto>>.GetSuccess(countriesDto);
-            }
+            var countries = await _unitOfWork.Countries.GetCountriesByNameFragement(countryName);
+            var countriesDto = _mapper.Map<IList<CountryDto>>(countries);
+
+            countriesResultToReturn = ResultModel<IList<CountryDto>>.GetSuccess(countriesDto);
 
             return countriesResultToReturn;
         }
@@ -45,48 +43,46 @@ namespace Library.Business.Services
 
             if (String.IsNullOrWhiteSpace(countryDto.Name))
             {
-                result = ResultModel<CountryDto>.GetError(ErrorCode.ValidationError, "Empty contry name");
+                return ResultModel<CountryDto>.GetError(ErrorCode.ValidationError, "Empty contry name");
             }
-            else
-            {
-                try
-                {
-                    await _unitOfWork.Countries.CreateAsync(_mapper.Map<CountryDto, Country>(countryDto));
-                    await _unitOfWork.SaveAsync();
 
-                    result = ResultModel<CountryDto>.GetSuccess(countryDto);
-                }
-                catch (Exception ex)
-                {
-                    _unitOfWork.Dispose();
-                    result = ResultModel<CountryDto>.GetError(ErrorCode.InternalServerError, $"Database error: {ex.Message}");
-                }
+            try
+            {
+                await _unitOfWork.Countries.CreateAsync(_mapper.Map<CountryDto, Country>(countryDto));
+                await _unitOfWork.SaveAsync();
+
+                result = ResultModel<CountryDto>.GetSuccess(countryDto);
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Dispose();
+                return ResultModel<CountryDto>.GetError(ErrorCode.InternalServerError, $"Creation of country is failed: {ex.Message}");
             }
 
             return result;
         }
 
-        public ResultModel<bool> DeleteCountryByIdAsync(long countryId)
+        public async Task<ResultModel<bool>> DeleteCountryById(long countryId)
         {
             ResultModel<bool> result;
 
             if (countryId == default)
             {
-                result = ResultModel<bool>.GetError(ErrorCode.ValidationError, "Wrong country ID");
+                return ResultModel<bool>.GetError(ErrorCode.ValidationError, "Wrong country ID");
             }
-            else
+            
+            try
             {
-                try
-                {
-                    _unitOfWork.Countries.DeleteById(countryId);
-                    result = ResultModel<bool>.GetSuccess(true);
-                }
-                catch (Exception ex)
-                {
-                    result = ResultModel<bool>.GetError(ErrorCode.InternalServerError, $"Database error: {ex.Message}");
-                }
-            }
+                await _unitOfWork.Countries.DeleteById(countryId);
+                await _unitOfWork.SaveAsync();
 
+                result = ResultModel<bool>.GetSuccess(true);
+            }
+            catch (Exception ex)
+            {
+                result = ResultModel<bool>.GetError(ErrorCode.InternalServerError, $"Deletion of country is failed: {ex.Message}");
+            }
+            
             return result;
         }
 
@@ -96,21 +92,18 @@ namespace Library.Business.Services
 
             if (countryId == default)
             {
-                result = ResultModel<CountryDto>.GetError(ErrorCode.ValidationError, "Wrong country ID");
+                return ResultModel<CountryDto>.GetError(ErrorCode.ValidationError, "Wrong country ID");
             }
-            else
-            {
-                var country = await _unitOfWork.Countries.GetByIdAsync(countryId);
+            
+            var country = await _unitOfWork.Countries.GetByIdAsync(countryId);
 
-                if (country != default)
-                {
-                    result = ResultModel<CountryDto>.GetSuccess(_mapper.Map<Country, CountryDto>(country));
-                }
-                else
-                {
-                    result = ResultModel<CountryDto>.GetError(ErrorCode.NotFound, $"Country with ID: {countryId} not found");
-                }
+            if (country == default)
+            {
+                return ResultModel<CountryDto>.GetError(ErrorCode.NotFound, $"Country with ID: {countryId} not found");
+                
             }
+
+            result = ResultModel<CountryDto>.GetSuccess(_mapper.Map<Country, CountryDto>(country));
 
             return result;
         }
@@ -121,21 +114,17 @@ namespace Library.Business.Services
 
             if (String.IsNullOrWhiteSpace(countryName))
             {
-                result = ResultModel<CountryDto>.GetError(ErrorCode.ValidationError, "Country name is empty");
+                return ResultModel<CountryDto>.GetError(ErrorCode.ValidationError, "Country name is empty");
             }
-            else
-            {
-                var country = await _unitOfWork.Countries.GetCountryByNameAsync(countryName); 
 
-                if (country != default)
-                {
-                    result = ResultModel<CountryDto>.GetSuccess(_mapper.Map<Country, CountryDto>(country));
-                }
-                else
-                {
-                    result = ResultModel<CountryDto>.GetError(ErrorCode.NotFound, $"Country with name: {countryName} not found");
-                }
+            var country = await _unitOfWork.Countries.GetCountryByNameAsync(countryName); 
+
+            if (country == default)
+            {
+                return ResultModel<CountryDto>.GetError(ErrorCode.NotFound, $"Country with name: {countryName} not found");
             }
+
+            result = ResultModel<CountryDto>.GetSuccess(_mapper.Map<Country, CountryDto>(country));
 
             return result;
         }
@@ -146,30 +135,25 @@ namespace Library.Business.Services
 
             if (countryDto == default)
             {
-                result = ResultModel<CountryDto>.GetError(ErrorCode.ValidationError, "Given country model validation error");
+                return ResultModel<CountryDto>.GetError(ErrorCode.ValidationError, "Given country model validation error");
             }
-            else
+
+            try
             {
-                try
-                {
-                    var doesCountryExist = await _unitOfWork.Countries.DoesExistByIdAsync(countryDto.Id);
+                var doesCountryExist = await _unitOfWork.Countries.DoesExistByIdAsync(countryDto.Id);
 
-                    if (doesCountryExist)
-                    {
-                        _unitOfWork.Countries.Update(_mapper.Map<CountryDto, Country>(countryDto));
-
-                        result = ResultModel<CountryDto>.GetSuccess(countryDto);
-                    }
-                    else
-                    {
-                        result = ResultModel<CountryDto>.GetError(ErrorCode.NotFound, $"Country with ID: {countryDto.Id} not found");
-                    }
-                }
-                catch (Exception ex)
+                if (!doesCountryExist)
                 {
-                    _unitOfWork.Dispose();
-                    result = ResultModel<CountryDto>.GetError(ErrorCode.InternalServerError, $"Database error: {ex.Message}");
+                    return ResultModel<CountryDto>.GetError(ErrorCode.NotFound, $"Country with ID: {countryDto.Id} not found");
                 }
+                _unitOfWork.Countries.Update(_mapper.Map<CountryDto, Country>(countryDto));
+
+                result = ResultModel<CountryDto>.GetSuccess(countryDto);
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Dispose();
+                return ResultModel<CountryDto>.GetError(ErrorCode.InternalServerError, $"Update of country is failed: {ex.Message}");
             }
 
             return result;

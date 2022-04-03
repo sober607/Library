@@ -12,8 +12,8 @@ namespace Library.Business.Services.Interfaces
 
         Task<ResultModel<bool>> DeletePublishingHouseByIdAsync(long publishingHouseId);
 
-        ResultModel<PublishingHouseDto> UpdatePublishingHouse(PublishingHouseDto publishingHouseDto);
+        Task<ResultModel<PublishingHouseDto>> UpdatePublishingHouseAsync(PublishingHouseDto publishingHouseDto);
 
-
+        Task<ResultModel<bool>> DoesPublishingHouseExistAsync(long? publishingHouseId);
     }
 }

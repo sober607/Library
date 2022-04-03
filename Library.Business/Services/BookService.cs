@@ -7,6 +7,7 @@ using AutoMapper;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Library.Business.Services
 {
@@ -14,14 +15,20 @@ namespace Library.Business.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IPublishingHouseService _publishingHouseService;
+        private const string WRONG_BOOK_ID = "Wrong book ID";
+        private const string BOOK_NOT_EXIST = "Book with given ID do not exist";
+        private const string WRONG_BOOK_MODEL = "Wrong book model";
+        private const string EMPTY_BOOK_MODEL = "Empty book model";
 
-        public BookService(IUnitOfWork unitOfWork, IMapper mapper)
+        public BookService(IUnitOfWork unitOfWork, IMapper mapper, IPublishingHouseService publishingHouseService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _publishingHouseService = publishingHouseService;
         }
 
-        public async Task<ResultModel<BookDto>> CreateBookAsync(CreateBookDto createBookDto) // TODO: To separate to small private methods /REFACTOR
+        public async Task<ResultModel<BookDto>> CreateBookAsync(CreateBookDto createBookDto)
         {
             ResultModel<BookDto> result;
 
@@ -38,34 +45,19 @@ namespace Library.Business.Services
 
                 await _unitOfWork.Books.CreateAsync(mappedToBookEntity);
 
-                var bookId = mappedToBookEntity.Id;
-
-                if (createBookDto.PersonsIdsToBeAuthors != default && createBookDto.PersonsIdsToBeAuthors.Count > 0)
-                {
-                    foreach (var personId in createBookDto.PersonsIdsToBeAuthors)
-                    {
-                        var person = await _unitOfWork.Persons.GetByIdAsync(personId);
-
-                        var bookAuthor = new BookAuthor()
-                        {
-                            BookId = bookId,
-                            Book = mappedToBookEntity,
-                            AuthorId = personId,
-                            Author = person
-                        };
-
-                        await _unitOfWork.BookAuthors.CreateAsync(bookAuthor);
-                    }
-                }
+                await CreateBookAuthors(createBookDto, mappedToBookEntity);
 
                 await _unitOfWork.SaveAsync();
 
                 var mappedFromCreateBookDtoToBookDto = _mapper.Map<CreateBookDto, BookDto>(createBookDto);
+
+                var bookId = mappedToBookEntity.Id;
+                mappedFromCreateBookDtoToBookDto.Id = bookId;
                 result = ResultModel<BookDto>.GetSuccess(mappedFromCreateBookDtoToBookDto);
             }
             catch(Exception ex)
             {
-                result = ResultModel<BookDto>.GetError(ErrorCode.InternalServerError, $"Database error: {ex.Message}");
+                result = ResultModel<BookDto>.GetError(ErrorCode.InternalServerError, $"Creation of book is failed: {ex.Message}");
             }
 
             return result;
@@ -77,28 +69,26 @@ namespace Library.Business.Services
 
             if (bookId == default)
             {
-                result = ResultModel<bool>.GetError(ErrorCode.ValidationError, "Wrong book ID");
+                return ResultModel<bool>.GetError(ErrorCode.ValidationError, WRONG_BOOK_ID);
             }
-            else
-            {
-                try
-                {
-                    var doesBookExist = await _unitOfWork.Books.DoesExistByIdAsync(bookId);
 
-                    if (doesBookExist)
-                    {
-                        await _unitOfWork.Books.DeleteById(bookId);
-                        result = ResultModel<bool>.GetSuccess(true);
-                    }
-                    else
-                    {
-                        result = ResultModel<bool>.GetError(ErrorCode.NotFound, "Book with given ID do not exist");
-                    }
-                }
-                catch (Exception ex)
+            try
+            {
+                var doesBookExist = await _unitOfWork.Books.DoesExistByIdAsync(bookId);
+
+                if (!doesBookExist)
                 {
-                    result = ResultModel<bool>.GetError(ErrorCode.InternalServerError, $"Database error: {ex.Message}");
+                    return ResultModel<bool>.GetError(ErrorCode.NotFound, BOOK_NOT_EXIST);
                 }
+
+                await _unitOfWork.Books.DeleteById(bookId);
+                await _unitOfWork.SaveAsync();
+
+                result = ResultModel<bool>.GetSuccess(true);
+            }
+            catch (Exception ex)
+            {
+                result = ResultModel<bool>.GetError(ErrorCode.InternalServerError, $"Deletion of book has failed: {ex.Message}");
             }
 
             return result;
@@ -110,22 +100,22 @@ namespace Library.Business.Services
 
             if (bookId == default)
             {
-                result = ResultModel<BookDto>.GetError(ErrorCode.ValidationError, "Wrong book ID");
+                return ResultModel<BookDto>.GetError(ErrorCode.ValidationError, WRONG_BOOK_ID);
             }
-            else
-            {
-                var book = await _unitOfWork.Books.GetByIdAsync(bookId);
 
-                if (book != default)
-                {
-                    var mappedEntity = _mapper.Map<Book, BookDto>(book);
-                    result = ResultModel<BookDto>.GetSuccess(mappedEntity);
-                }
-                else
-                {
-                    result = ResultModel<BookDto>.GetError(ErrorCode.NotFound, $"Book with ID: {bookId} not found");
-                }
+            var book = await _unitOfWork.Books.GetByIdAsync(bookId);
+
+            if (book == default)
+            {
+                return ResultModel<BookDto>.GetError(ErrorCode.NotFound, $"{BOOK_NOT_EXIST}. ID: {bookId}");
             }
+
+            var bookAuthors = await _unitOfWork.BookAuthors.GetBookAuthorIdsByBookIdAsync(bookId);
+
+            book.BookAuthors = bookAuthors.ToList();
+
+            var mappedEntity = _mapper.Map<Book, BookDto>(book);
+            result = ResultModel<BookDto>.GetSuccess(mappedEntity);
 
             return result;
         }
@@ -136,54 +126,37 @@ namespace Library.Business.Services
 
             if (bookDto == default && bookDto.Id == default)
             {
-                result = ResultModel<BookDto>.GetError(ErrorCode.ValidationError, "Book model is wrong");
+                return ResultModel<BookDto>.GetError(ErrorCode.ValidationError, WRONG_BOOK_MODEL);
             }
-            else
+
+            var existingBook = await _unitOfWork.Books.GetByIdAsync(bookDto.Id);
+
+            if (existingBook == default)
             {
-                var existingBook = await _unitOfWork.Books.GetByIdAsync(bookDto.Id);
-
-                if (existingBook != default)
-                {
-                    var newBookAuthors = bookDto.AuthorIds.Select(personId => new BookAuthor
-                    {
-                        BookId = existingBook.Id,
-                        Book = existingBook,
-                        AuthorId = personId
-                    }).ToList();
-
-                    var oldAuthors = existingBook.BookAuthors.Where(x => x.BookId == existingBook.Id);
-
-                    _unitOfWork.BookAuthors.UpdateManyToMany(oldAuthors, newBookAuthors);
-
-                    var newMappedBook = _mapper.Map<BookDto, Book>(bookDto);
-
-                    newMappedBook.BookAuthors = newBookAuthors;
-
-                    _unitOfWork.Books.Update(newMappedBook);
-
-                    await _unitOfWork.SaveAsync();
-
-                    result = ResultModel<BookDto>.GetSuccess(bookDto);
-                }
-                else
-                {
-                    result = ResultModel<BookDto>.GetError(ErrorCode.NotFound, $"Book with ID: {bookDto.Id} not found");
-                } 
+                return ResultModel<BookDto>.GetError(ErrorCode.NotFound, $"{BOOK_NOT_EXIST}. ID: {bookDto.Id}");
             }
 
-            return result;
-        }
+            var existingBookAuthors = await _unitOfWork.BookAuthors.GetBookAuthorIdsByBookIdAsync(existingBook.Id);
 
-        private async Task<bool> DoesPublishingHouseExist(long? publishingHouseId)
-        {
-            var result = false;
-
-            if (publishingHouseId != default)
+            var newBookAuthors = bookDto.AuthorIds.Select(personId => new BookAuthor
             {
-                var doesNewPublishingHouseExist = await _unitOfWork.PublishingHouses.DoesExistByIdAsync((long)publishingHouseId);
+                BookId = existingBook.Id,
+                Book = existingBook,
+                AuthorId = personId
+            }).ToList();
 
-                result = doesNewPublishingHouseExist;
-            }
+            existingBook.Circulations = bookDto.Circulations ?? existingBook.Circulations;
+            existingBook.PublishingDate = bookDto.PublishingDate ?? existingBook.PublishingDate;
+            existingBook.PublishingHouseId = bookDto.PublishingHouseId ?? existingBook.PublishingHouseId;
+            existingBook.Title = bookDto.Title ?? existingBook.Title;
+
+            _unitOfWork.Books.Update(existingBook);
+
+            _unitOfWork.BookAuthors.UpdateManyToMany(existingBookAuthors, newBookAuthors);
+
+            await _unitOfWork.SaveAsync();
+
+            result = ResultModel<BookDto>.GetSuccess(bookDto);
 
             return result;
         }
@@ -192,15 +165,22 @@ namespace Library.Business.Services
         {
             if (createBookDto == default)
             {
-                return ResultModel<BookDto>.GetError(ErrorCode.ValidationError, "Empty book model");
+                return ResultModel<BookDto>.GetError(ErrorCode.ValidationError, EMPTY_BOOK_MODEL);
             }
 
-            if (createBookDto.PublishingHouseId != default && !await DoesPublishingHouseExist(createBookDto.PublishingHouseId))
+            var doesPublishingHouseExist = await _publishingHouseService.DoesPublishingHouseExistAsync(createBookDto.PublishingHouseId);
+
+            if (doesPublishingHouseExist.Error != default)
+            {
+                return ResultModel<BookDto>.GetError(doesPublishingHouseExist.Error.Code, doesPublishingHouseExist.Error.Message);
+            }
+
+            if (createBookDto.PublishingHouseId != default && !doesPublishingHouseExist.Data)
             {
                 return ResultModel<BookDto>.GetError(ErrorCode.NotFound, "Given publishing house does not exist");
             }
 
-            if (createBookDto.PersonsIdsToBeAuthors != default && createBookDto.PersonsIdsToBeAuthors.Count != 0)
+            if (createBookDto.PersonsIdsToBeAuthors != default && createBookDto.PersonsIdsToBeAuthors.Any())
             {
                 foreach (var personId in createBookDto.PersonsIdsToBeAuthors) // Horrible check. Have to find way to send IEnumerable to EF and to receive List of non-existing persons
                 {
@@ -212,6 +192,35 @@ namespace Library.Business.Services
             }
 
             return ResultModel<BookDto>.GetSuccess(_mapper.Map<CreateBookDto, BookDto>(createBookDto));
+        }
+
+        private async Task CreateBookAuthors(CreateBookDto createBookDto, Book book)
+        {
+            if (createBookDto.PersonsIdsToBeAuthors != default && createBookDto.PersonsIdsToBeAuthors.Any())
+            {
+                foreach (var personId in createBookDto.PersonsIdsToBeAuthors)
+                {
+                    var person = await _unitOfWork.Persons.GetByIdAsync(personId);
+
+                    var bookAuthor = new BookAuthor()
+                    {
+                        Book = book,
+                        AuthorId = personId,
+                        Author = person
+                    };
+
+                    await _unitOfWork.BookAuthors.CreateAsync(bookAuthor);
+                }
+            }
+        }
+
+        private void AttachBookAuthorsToBook(Book book, IEnumerable<long> authorsList)
+        {
+            foreach(var authorId in authorsList)
+            {
+                var bookAuthor = new BookAuthor();
+                bookAuthor.AuthorId = authorId;
+            }
         }
     }
 }

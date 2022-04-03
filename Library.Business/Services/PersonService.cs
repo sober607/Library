@@ -19,28 +19,29 @@ namespace Library.Business.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+
         public async Task<ResultModel<PersonDto>> CreatePersonAsync(PersonDto personDto)
         {
             ResultModel<PersonDto> result;
 
             if (personDto == default)
             {
-                result = ResultModel<PersonDto>.GetError(ErrorCode.ValidationError, "Empty contry name");
+                return ResultModel<PersonDto>.GetError(ErrorCode.ValidationError, "Empty person model");
             }
-            else
-            {
-                try
-                {
-                    var person = _mapper.Map<PersonDto, Person>(personDto);
-                    await _unitOfWork.Persons.CreateAsync(person);
-                    await _unitOfWork.SaveAsync();
 
-                    result = ResultModel<PersonDto>.GetSuccess(personDto);
-                }
-                catch (Exception ex)
-                {
-                    result = ResultModel<PersonDto>.GetError(ErrorCode.InternalServerError, $"Database error: {ex.Message}");
-                }
+            try
+            {
+                var person = _mapper.Map<PersonDto, Person>(personDto);
+                await _unitOfWork.Persons.CreateAsync(person);
+                await _unitOfWork.SaveAsync();
+
+                var mappedPersonDto = _mapper.Map<Person, PersonDto>(person);
+
+                result = ResultModel<PersonDto>.GetSuccess(mappedPersonDto);
+            }
+            catch (Exception ex)
+            {
+                result = ResultModel<PersonDto>.GetError(ErrorCode.InternalServerError, $"Create of person failed: {ex.Message}");
             }
 
             return result;
@@ -54,26 +55,24 @@ namespace Library.Business.Services
             {
                 result = ResultModel<bool>.GetError(ErrorCode.ValidationError, "Wrong person ID");
             }
-            else
+
+            try
             {
-                try
-                {
-                    var personExists = await _unitOfWork.Persons.DoesExistByIdAsync(personId);
+                var personExists = await _unitOfWork.Persons.DoesExistByIdAsync(personId);
                     
-                    if (personExists)
-                    {
-                        await _unitOfWork.Persons.DeleteById(personId);
-                        result = ResultModel<bool>.GetSuccess(true);
-                    }
-                    else
-                    {
-                        result = ResultModel<bool>.GetError(ErrorCode.NotFound, $"Person with ID: {personId} not found");
-                    }
-                }
-                catch (Exception ex)
+                if (!personExists)
                 {
-                    result = ResultModel<bool>.GetError(ErrorCode.InternalServerError, $"Database error: {ex.Message}");
+                    return ResultModel<bool>.GetError(ErrorCode.NotFound, $"Person with ID: {personId} not found");
                 }
+
+                await _unitOfWork.Persons.DeleteById(personId);
+                await _unitOfWork.SaveAsync();
+
+                result = ResultModel<bool>.GetSuccess(true);
+            }
+            catch (Exception ex)
+            {
+                result = ResultModel<bool>.GetError(ErrorCode.InternalServerError, $"Delete of person failed: {ex.Message}");
             }
 
             return result;
@@ -85,14 +84,12 @@ namespace Library.Business.Services
 
             if (personId == default)
             {
-                result = ResultModel<PersonDto>.GetError(ErrorCode.ValidationError, "Wrong person ID");
+                return ResultModel<PersonDto>.GetError(ErrorCode.ValidationError, "Wrong person ID");
             }
-            else
-            {
-                var person = await _unitOfWork.Persons.GetByIdAsync(personId);
-                var mappedEntity = _mapper.Map<Person, PersonDto>(person);
-                result = ResultModel<PersonDto>.GetSuccess(mappedEntity);
-            }
+            
+            var person = await _unitOfWork.Persons.GetByIdAsync(personId);
+            var mappedEntity = _mapper.Map<Person, PersonDto>(person);
+            result = ResultModel<PersonDto>.GetSuccess(mappedEntity);
 
             return result;
         }
@@ -103,32 +100,28 @@ namespace Library.Business.Services
 
             if (personDto == default)
             {
-                result = ResultModel<PersonDto>.GetError(ErrorCode.ValidationError, "Wrong person model");
+                return ResultModel<PersonDto>.GetError(ErrorCode.ValidationError, "Wrong person model");
             }
-            else
+
+            try
             {
-                try
+                var personExists = await _unitOfWork.Persons.DoesExistByIdAsync(personDto.Id);
+
+                if (!personExists)
                 {
-                    var personExists = await _unitOfWork.Persons.DoesExistByIdAsync(personDto.Id);
-
-                    if (personExists)
-                    {
-                        var mappedEntity = _mapper.Map<PersonDto, Person>(personDto);
-                        _unitOfWork.Persons.Update(mappedEntity);
-
-                        var mappedResult = _mapper.Map<Person, PersonDto>(mappedEntity);
-                        result = ResultModel<PersonDto>.GetSuccess(mappedResult);
-                    }
-                    else
-                    {
-                        result = ResultModel<PersonDto>.GetError(ErrorCode.NotFound, $"Person with ID: {personDto.Id} not found");
-                    }
-
+                    return ResultModel<PersonDto>.GetError(ErrorCode.NotFound, $"Person with ID: {personDto.Id} not found");
                 }
-                catch (Exception ex)
-                {
-                    result = ResultModel<PersonDto>.GetError(ErrorCode.InternalServerError, $"Database error: {ex.Message}");
-                }
+
+                var mappedEntity = _mapper.Map<PersonDto, Person>(personDto);
+                _unitOfWork.Persons.Update(mappedEntity);
+                await _unitOfWork.SaveAsync();
+
+                var mappedResult = _mapper.Map<Person, PersonDto>(mappedEntity);
+                result = ResultModel<PersonDto>.GetSuccess(mappedResult);
+            }
+            catch (Exception ex)
+            {
+                result = ResultModel<PersonDto>.GetError(ErrorCode.InternalServerError, $"Update of person failed: {ex.Message}");
             }
 
             return result; 

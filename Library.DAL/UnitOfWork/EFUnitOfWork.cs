@@ -71,7 +71,7 @@ namespace Library.DAL.UnitOfWork
             }
         }
 
-        public IRepository<BookAuthor> BookAuthors
+        public IBookAuthorRepository BookAuthors
         {
             get
             {

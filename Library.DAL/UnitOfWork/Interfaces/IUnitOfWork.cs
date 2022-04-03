@@ -16,7 +16,7 @@ namespace Library.DAL.UnitOfWork
 
         IRepository<PublishingHouse> PublishingHouses { get; }
 
-        IRepository<BookAuthor> BookAuthors { get; }
+        IBookAuthorRepository BookAuthors { get; }
 
         Task SaveAsync();
     }

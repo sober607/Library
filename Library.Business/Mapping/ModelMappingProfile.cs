@@ -13,9 +13,12 @@ namespace Library.Business.Mapping
         public ModelMappingProfile()
         {
             // To review and edit
-            CreateMap<Book, BookDto>().ForMember(destination => destination.AuthorIds, conf => conf.MapFrom(x => x.BookAuthors.Select(y => y.AuthorId).ToList())); // Проверитьб нужен ли ToLLIst
+            CreateMap<Book, BookDto>().ForMember(destination => destination.AuthorIds, 
+                conf => conf.MapFrom(x => x.BookAuthors.Select(y => y.AuthorId).ToList())); // Проверитьб нужен ли ToLLIst
             CreateMap<BookDto, Book>();
-            CreateMap<CreateBookDto, Book>();
+            CreateMap<CreateBookDto, Book>(); 
+            CreateMap<CreateBookDto, BookDto>().ForMember(destination => destination.AuthorIds,
+                conf => conf.MapFrom(x => x.PersonsIdsToBeAuthors));
 
             CreateMap<Country, CountryDto>().ReverseMap();
 

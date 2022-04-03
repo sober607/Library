@@ -15,7 +15,7 @@ namespace Library.Business.Services.Interfaces
 
         Task<ResultModel<CountryDto>> CreateCountryAsync(CountryDto countryDto);
 
-        ResultModel<bool> DeleteCountryByIdAsync(long countryId);
+        Task<ResultModel<bool>> DeleteCountryById(long countryId);
 
         Task<ResultModel<CountryDto>> UpdateCountry(CountryDto countryDto);
     }

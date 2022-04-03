@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Library.DAL.Entities;
+using System.Linq;
 
 namespace Library.DAL.Repositories
 {
@@ -18,8 +19,6 @@ namespace Library.DAL.Repositories
             _context = context;
             _entities = _context.Set<TEntity>();
         }
-
-        // To check necersaryti AsQueryable
 
         public async Task<IEnumerable<TEntity>> GetAll() // To check necessaryty
         {

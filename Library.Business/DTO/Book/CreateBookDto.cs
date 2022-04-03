@@ -5,8 +5,6 @@ namespace Library.Business.DTO.Book
 {
     public class CreateBookDto
     {
-        public long Id { get; set; }
-
         public string Title { get; set; }
 
         public long? PublishingHouseId { get; set; }

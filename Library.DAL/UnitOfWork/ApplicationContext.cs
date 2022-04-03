@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Library.DAL.Entities;
+using Library.DAL.EntitiesConfiguration;
 
 namespace Library.DAL.UnitOfWork
 {
@@ -25,61 +26,11 @@ namespace Library.DAL.UnitOfWork
         //Many-To-Many table relationship
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<BookAuthor>()
-                    .HasOne(d => d.Book)
-                    .WithMany(t => t.BookAuthors)
-                    .HasForeignKey(f => f.BookId)
-                    .HasConstraintName("FK_BooksOfAuthor");
-
-            modelBuilder.Entity<BookAuthor>()
-                    .HasOne(d => d.Author)
-                    .WithMany(t => t.AuthorBooks)
-                    .HasForeignKey(f => f.AuthorId)
-                    .HasConstraintName("FK_AuthorsOfBook");
-
-            modelBuilder.Entity<BookAuthor>()
-                    .HasIndex(f => new { f.AuthorId, f.BookId })
-                    .IsUnique();
-
-            modelBuilder.Entity<BookAuthor>()
-                .Property(x => x.BookId)
-                .IsRequired();
-
-            modelBuilder.Entity<BookAuthor>()
-                .Property(x => x.AuthorId)
-                .IsRequired();
-
-            modelBuilder.Entity<Book>()
-                .Property(x => x.Title)
-                .IsRequired();
-
-            modelBuilder.Entity<Book>()
-                .Property(x => x.Title)
-                .HasMaxLength(1000);
-
-            modelBuilder.Entity<Country>()
-                .Property(x => x.Name)
-                .HasMaxLength(50);
-
-            modelBuilder.Entity<Country>()
-                .Property(x => x.Name)
-                .IsRequired();
-
-            modelBuilder.Entity<Person>()
-                .Property(x => x.FirstName)
-                .IsRequired();
-
-            modelBuilder.Entity<Person>()
-                .Property(x => x.FirstName)
-                .HasMaxLength(50);
-
-            modelBuilder.Entity<PublishingHouse>()
-                .Property(x => x.Name)
-                .HasMaxLength(500);
-
-            modelBuilder.Entity<PublishingHouse>()
-                .Property(x => x.Name)
-                .IsRequired();
+            modelBuilder.ApplyConfiguration(new BookAuthorEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new BookEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new CountryEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new PersonEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new PublishingHouseEntityConfiguration());
         }
     }
 }
