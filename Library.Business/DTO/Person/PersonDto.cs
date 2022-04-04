@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
-namespace Library.DAL.Entities
+namespace Library.Business.DTO.Person
 {
-    public class Person : BaseEntity
+    public class PersonDto
     {
+        public long Id { get; set; }
+
         public string FirstName { get; set; }
 #nullable enable
         public string? LastName { get; set; }
@@ -14,8 +15,6 @@ namespace Library.DAL.Entities
 
         public long? CountryId { get; set; }
 #nullable disable
-        public Country CountryOfBirth { get; set; }
-
-        public IList<BookAuthor> AuthorBooks { get; set; }
+        public IList<long> BooksIds { get; set; }
     }
 }

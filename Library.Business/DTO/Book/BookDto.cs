@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
-namespace Library.DAL.Entities
+namespace Library.Business.DTO.Book
 {
-    public class Book : BaseEntity
+    public class BookDto
     {
+        public long Id { get; set; }
+        
         public string Title { get; set; }
 
         public long? PublishingHouseId { get; set; }
-
-        public PublishingHouse PublishingHouse { get; set; }
 
         public DateTime? PublishingDate { get; set; }
 
         public int? Circulations { get; set; }
 
-        public ICollection<BookAuthor> BookAuthors { get; set; }
+        public IList<long> AuthorIds { get; set; }
     }
 }

@@ -1,10 +1,7 @@
-﻿using Library.DAL.Entities;
-using Library.DAL.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Library.DAL.Entities;
+using Library.DAL.Repositories;
+using Library.DAL.Repositories.Interfaces;
 
 namespace Library.DAL.UnitOfWork
 {
@@ -14,14 +11,15 @@ namespace Library.DAL.UnitOfWork
         private BookRepository _bookRepository;
         private CountryRepository _countryRepository;
         private PersonRepository _personRepository;
-        private PublishingHouseReposiroty _publishingHouseRepository;
+        private PublishingHouseRepository _publishingHouseRepository;
+        private BookAuthorRepository _bookAuthorRepository;
 
         public EFUnitOfWork(ApplicationContext applicationContext)
         {
             _applicationContext = applicationContext;
         }
 
-        public IRepository<Book> BookRepository
+        public IRepository<Book> Books
         {
             get
             {
@@ -34,7 +32,7 @@ namespace Library.DAL.UnitOfWork
             }
         }
 
-        public IRepository<Country> CountryRepository
+        public ICountryRepository Countries
         {
             get
             {
@@ -47,7 +45,7 @@ namespace Library.DAL.UnitOfWork
             }
         }
 
-        public IRepository<Person> PersonRepository
+        public IRepository<Person> Persons
         {
             get
             {
@@ -60,7 +58,7 @@ namespace Library.DAL.UnitOfWork
             }
         }
 
-        public IRepository<PublishingHouse> PublishingHouseRepository
+        public IRepository<PublishingHouse> PublishingHouses
         {
             get
             {
@@ -73,16 +71,28 @@ namespace Library.DAL.UnitOfWork
             }
         }
 
-        public async void SaveAsync()
+        public IBookAuthorRepository BookAuthors
+        {
+            get
+            {
+                if (_bookAuthorRepository == null)
+                {
+                    _bookAuthorRepository = new BookAuthorRepository(_applicationContext);
+                }
+
+                return _bookAuthorRepository;
+            }
+        }
+
+        public async Task SaveAsync()
         {
             await _applicationContext.SaveChangesAsync();
         }
 
-        public void RollBack()
+        public void Dispose()
         {
             _applicationContext.Dispose();
+            /*_applicationContext.Database.*/ // проверить нужно COMMIT и ROLLBACK, BEGIN TRANSACTION
         }
-
-        //To add BeginTransactionMethod, _applicationContext.ROllback()
     }
 }
