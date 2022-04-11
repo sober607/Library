@@ -1,0 +1,8 @@
+﻿<h2>Список стран</h2>
+<table class="table table-striped">
+    <tbody>
+        <tr *ngFor="let c of countries">
+            <td><a [routerLink]="['country', c.id]" class="nav-link">{{c?.name}}</a></td>
+        </tr>
+    </tbody>
+</table>

@@ -158,5 +158,13 @@ namespace Library.Business.Services
 
             return result;
         }
+
+        public async Task<ResultModel<IEnumerable<CountryDto>>> GetAllCountries()
+        {
+            var countries = await _unitOfWork.Countries.GetAll();
+            var mappedCountries = _mapper.Map<IEnumerable<Country>, IEnumerable<CountryDto>>(countries);
+
+            return ResultModel<IEnumerable<CountryDto>>.GetSuccess(mappedCountries);
+        }
     }
 }
