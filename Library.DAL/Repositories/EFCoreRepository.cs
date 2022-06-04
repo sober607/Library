@@ -59,10 +59,7 @@ namespace Library.DAL.Repositories
         {
             var entity = await _entities.FirstOrDefaultAsync(entity => entity.Id == id);
 
-            if (entity != null)
-            {
-                _entities.Remove(entity);
-            }
+            _entities.Remove(entity);
         }
 
         public void UpdateManyToMany(IEnumerable<TEntity> currentItems, IEnumerable<TEntity> newItems)

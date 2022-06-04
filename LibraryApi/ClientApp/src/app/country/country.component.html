@@ -1,0 +1,45 @@
+<h1 id="tableLabel">Countries</h1>
+
+<p>This section you can manage countries used at current library.</p>
+
+<p *ngIf="!countries"><em>Loading...</em></p>
+
+<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="countries">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let country of countries">
+      <ng-template [ngIf]="countryToEdit?.id != country.id" [ngIfElse]="edit">
+        <td>{{ country?.id }}</td>
+        <td>{{ country?.name }}</td>
+        <td>
+          <button class="btn btn-sm btn-danger" (click)="delete(country.id)">Delete</button>
+          <button class="btn btn-sm btn-primary" (click)="editCountry(country)">Edit</button>
+        </td>
+      </ng-template>
+    </tr>
+    <tr *ngIf="countryToEdit === undefined">
+      <td></td>
+      <td><input type="text" [(ngModel)]="countryNameToAdd" class="form-control" /></td>
+      <td>
+        <button class="btn btn-sm btn-success" (click)="add(countryNameToAdd)">Add</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<ng-template #edit>
+  <td>{{ countryToEdit?.id }}</td>
+  <td>
+    <input type="text" [(ngModel)]="countryToEdit.name" class="form-control" />
+  </td>
+  <td>
+    <input type="button" value="Сохранить" (click)="save()" class="btn btn-sm btn-success" />
+    <input type="button" value="Отмена" (click)="cancel()" class="btn btn-sm btn-warning" />
+  </td>
+</ng-template>

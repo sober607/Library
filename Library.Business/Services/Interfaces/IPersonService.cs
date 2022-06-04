@@ -1,5 +1,6 @@
 ﻿using Library.Business.DTO.Person;
 using Library.Business.Model.ResultModel;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Library.Business.Services.Interfaces
@@ -13,5 +14,7 @@ namespace Library.Business.Services.Interfaces
         Task<ResultModel<bool>> DeletePersonByIdAsync(long personId);
 
         Task<ResultModel<PersonDto>> UpdatePerson(PersonDto personDto);
+
+        Task<ResultModel<IEnumerable<PersonDto>>> GetAllPersons();
     }
 }

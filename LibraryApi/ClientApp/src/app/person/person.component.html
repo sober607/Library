@@ -1,0 +1,76 @@
+<h1 id="tableLabel">Persons</h1>
+
+<p>This section you can manage people used at current library.</p>
+
+<p *ngIf="!persons"><em>Loading...</em></p>
+
+<div *ngIf="errorText"
+     class="alert alert-danger">
+  <div *ngIf="myForm.controls.firstName.errors.required">
+    {{ errorText }}
+  </div>
+</div>
+
+<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="persons">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>First name</th>
+      <th>Last name</th>
+      <th>Country of birth</th>
+      <th>Date of birth</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let person of persons">
+      <ng-template [ngIf]="personToEdit?.id != person.id" [ngIfElse]="edit">
+        <td>{{ person?.id }}</td>
+        <td>{{ person?.firstName }}</td>
+        <td>{{ person?.lastName }}</td>
+        <td>{{ this.getCountryName(person?.countryId) }}</td>
+        <td>{{ person?.dateOfBirth | date:'mediumDate' }}</td>
+        <td>
+          <button class="btn btn-sm btn-danger" (click)="delete(person.id)">Delete</button>
+          <button class="btn btn-sm btn-primary" (click)="editPerson(person)">Edit</button>
+        </td>
+      </ng-template>
+    </tr>
+    <tr *ngIf="personToEdit == undefined">
+      <td></td>
+      <td><input type="text" [(ngModel)]="firstName" class="form-control" /></td>
+      <td><input type="text" [(ngModel)]="lastName" class="form-control" /></td>
+      <td>
+        <select [(ngModel)]="countrySelected" class="form-select" aria-label="Default select example">
+          <option *ngFor="let country of countries" [ngValue]="country?.id">{{ country?.name }}</option>
+        </select>
+      </td>
+      <td><input type="date" [(ngModel)]="dateOfBirth" class="form-control" /></td>
+      <td>
+        <button class="btn btn-sm btn-success" (click)="add(firstName, lastName, dateOfBirth)">Add</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<ng-template #edit>
+  <td>{{ personToEdit?.id }}</td>
+  <td>
+    <input type="text" [(ngModel)]="personToEdit.firstName" class="form-control" />
+  </td>
+  <td>
+    <input type="text" [(ngModel)]="personToEdit.lastName" class="form-control" />
+  </td>
+  <td>
+    <select [(ngModel)]="countrySelected" class="form-select" aria-label="Default select example">
+      <option *ngFor="let country of countries" [ngValue]="country?.id">{{ country?.name }}</option>
+    </select>
+  </td>
+  <td>
+    <input type="date" [(ngModel)]="personToEdit.dateOfBirth" class="form-control" />
+  </td>
+  <td>
+    <input type="button" value="Сохранить" (click)="save()" class="btn btn-sm btn-success" />
+    <input type="button" value="Отмена" (click)="cancel()" class="btn btn-sm btn-warning" />
+  </td>
+</ng-template>

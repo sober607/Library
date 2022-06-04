@@ -5,6 +5,7 @@ using Library.Business.Services.Interfaces;
 using Library.DAL.Entities;
 using Library.DAL.UnitOfWork;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Library.Business.Services
@@ -125,6 +126,14 @@ namespace Library.Business.Services
             }
 
             return result; 
+        }
+
+        public async Task<ResultModel<IEnumerable<PersonDto>>> GetAllPersons()
+        {
+            var persons = await _unitOfWork.Persons.GetAll();
+            var mappedPersons = _mapper.Map<IEnumerable<Person>, IEnumerable<PersonDto>>(persons);
+
+            return ResultModel<IEnumerable<PersonDto>>.GetSuccess(mappedPersons);
         }
     }
 }

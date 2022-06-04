@@ -6,6 +6,7 @@ using Library.Business.Model.ResultModel;
 using Library.Business.Services.Interfaces;
 using Library.DAL.UnitOfWork;
 using Library.DAL.Entities;
+using System.Collections.Generic;
 
 namespace Library.Business.Services
 {
@@ -58,6 +59,7 @@ namespace Library.Business.Services
             try
             {
                 await _unitOfWork.PublishingHouses.DeleteById(publishingHouseId);
+                await _unitOfWork.SaveAsync();
                 result = ResultModel<bool>.GetSuccess(true);
             }
             catch (Exception ex)
@@ -132,6 +134,14 @@ namespace Library.Business.Services
             }
 
             return result;
+        }
+
+        public async Task<ResultModel<IEnumerable<PublishingHouseDto>>> GetAllPublishingHouses()
+        {
+            var publishingHouses = await _unitOfWork.PublishingHouses.GetAll();
+            var mappedPublishingHouses = _mapper.Map<IEnumerable<PublishingHouse>, IEnumerable<PublishingHouseDto>>(publishingHouses);
+
+            return ResultModel<IEnumerable<PublishingHouseDto>>.GetSuccess(mappedPublishingHouses);
         }
     }
 }

@@ -1,0 +1,48 @@
+<h1 id="tableLabel">Publishing Houses</h1>
+
+<p>This section you can manage publishing houses at current library.</p>
+
+<p *ngIf="!publishingHouses"><em>Loading...</em></p>
+
+<p-table [value]="publishingHouses" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5,10,15,20]" totalRecords="totalRecords" pageLinks="3">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th></th>
+    </tr>
+  </ng-template>
+  <ng-template>
+    <tr>
+      <td></td>
+      <td><input type="text" [(ngModel)]="publishingHouseName" class="form-control" /></td>
+      <td>
+        <button class="btn btn-sm btn-success" (click)="add(publishingHouseName)">Add</button>
+      </td>
+    </tr>
+  </ng-template>
+      <ng-template pTemplate="body" let-publishingHouse>
+        <tr>
+          <ng-template [ngIf]="publishingHouseToEdit?.id != publishingHouse.id" [ngIfElse]="edit">
+            <td>{{ publishingHouse?.id }}</td>
+            <td>{{ publishingHouse?.name }}</td>
+            <td>
+              <button class="btn btn-sm btn-danger" (click)="delete(publishingHouse?.id)">Delete</button>
+              <button class="btn btn-sm btn-primary" (click)="editPublishingHouse(publishingHouse)">Edit</button>
+            </td>
+          </ng-template>
+        </tr>
+      </ng-template>
+
+</p-table>
+
+<ng-template #edit>
+  <td>{{ publishingHouseToEdit?.id }}</td>
+  <td>
+    <input type="text" [(ngModel)]="publishingHouseToEdit.name" class="form-control" />
+  </td>
+  <td>
+    <input type="button" value="Сохранить" (click)="save()" class="btn btn-sm btn-success" />
+    <input type="button" value="Отмена" (click)="cancel()" class="btn btn-sm btn-warning" />
+  </td>
+</ng-template>
