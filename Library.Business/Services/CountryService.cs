@@ -78,6 +78,10 @@ namespace Library.Business.Services
 
                 result = ResultModel<bool>.GetSuccess(true);
             }
+            catch(ArgumentNullException ex)
+            {
+                result = ResultModel<bool>.GetError(ErrorCode.NotFound, $"Unable to find country with id {countryId}: {ex.Message}");
+            }
             catch (Exception ex)
             {
                 result = ResultModel<bool>.GetError(ErrorCode.InternalServerError, $"Deletion of country is failed: {ex.Message}");
@@ -147,6 +151,7 @@ namespace Library.Business.Services
                     return ResultModel<CountryDto>.GetError(ErrorCode.NotFound, $"Country with ID: {countryDto.Id} not found");
                 }
                 _unitOfWork.Countries.Update(_mapper.Map<CountryDto, Country>(countryDto));
+                await _unitOfWork.SaveAsync();
 
                 result = ResultModel<CountryDto>.GetSuccess(countryDto);
             }
@@ -157,6 +162,14 @@ namespace Library.Business.Services
             }
 
             return result;
+        }
+
+        public async Task<ResultModel<IEnumerable<CountryDto>>> GetAllCountries()
+        {
+            var countries = await _unitOfWork.Countries.GetAll();
+            var mappedCountries = _mapper.Map<IEnumerable<Country>, IEnumerable<CountryDto>>(countries);
+
+            return ResultModel<IEnumerable<CountryDto>>.GetSuccess(mappedCountries);
         }
     }
 }

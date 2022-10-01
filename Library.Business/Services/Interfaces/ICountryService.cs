@@ -18,5 +18,7 @@ namespace Library.Business.Services.Interfaces
         Task<ResultModel<bool>> DeleteCountryById(long countryId);
 
         Task<ResultModel<CountryDto>> UpdateCountry(CountryDto countryDto);
+
+        Task<ResultModel<IEnumerable<CountryDto>>> GetAllCountries();
     }
 }

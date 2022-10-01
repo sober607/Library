@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Library.Business.DTO.Person;
 using Library.Business.DTO.PublishingHouse;
 using Library.Business.Model.ResultModel;
 
@@ -15,5 +17,7 @@ namespace Library.Business.Services.Interfaces
         Task<ResultModel<PublishingHouseDto>> UpdatePublishingHouseAsync(PublishingHouseDto publishingHouseDto);
 
         Task<ResultModel<bool>> DoesPublishingHouseExistAsync(long? publishingHouseId);
+
+        Task<ResultModel<IEnumerable<PublishingHouseDto>>> GetAllPublishingHouses();
     }
 }

@@ -51,6 +51,14 @@ namespace Library.Controllers
             return ResultModel<CountryDto>.ToActionResult(country);
         }
 
+        [HttpGet("All")]
+        public async Task<IActionResult> Get()
+        {
+            var countries = await _countryService.GetAllCountries();
+
+            return ResultModel<IEnumerable<CountryDto>>.ToActionResult(countries);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(CountryDto countryDto)
         {
